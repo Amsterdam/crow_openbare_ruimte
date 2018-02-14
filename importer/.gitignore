@@ -1,0 +1,17 @@
+.idea
+__pycache__
+*.pyc
+reports
+*.iml
+.env
+.jenkins/backups
+venv/
+.ini
+.conf
+.ipynb_checkpoints
+*.egg-info
+build/
+gh-pages/
+data/
+.csv
+.sqlite

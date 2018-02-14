@@ -1,0 +1,5 @@
+pandas==0.22.0
+psycopg2==2.7.4
+requests==2.18.4
+requests-cache==0.4.13
+SQLAlchemy==1.2.2
