@@ -14,6 +14,7 @@ from helper_functions import flatten_json, postgres_engine_pandas
 def payload(config_full_path, config_name):
     config = configparser.RawConfigParser()
     config.read(config_full_path)
+    print('Found these configs.. {}'.format(config.sections()))
     payload = {'key': config.get(config_name, 'key'),
                'secret': config.get(config_name, 'secret')
                }
@@ -30,8 +31,8 @@ def get_json(uri):
 
 def get_objects(endpoint, uri):
     json_array = get_json(endpoint)
+    print(json_array)
     list_uris = [item['uri'] for item in json_array]
-    #print(json_array)
     return list_uris
 
 
