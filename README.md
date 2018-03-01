@@ -37,5 +37,5 @@ create a config.ini file with the key and token credentials using the config.ini
 
 To run the downloader locally run:
 ```
-./importer/docker-run.sh
+./importer/dev-run.sh
 ```
