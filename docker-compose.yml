@@ -13,4 +13,5 @@ services:
     build: importer
     links:
       - database
-    
+    command: >
+        bash -c "/app/docker-run.sh"
