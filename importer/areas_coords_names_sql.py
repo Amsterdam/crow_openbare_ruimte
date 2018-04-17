@@ -3,8 +3,14 @@
 This is where SQL queries that must be run after import go.
 """
 import psycopg2
+from psycopg2 import sql
 import configparser
 import argparse
+import os
+from datetime import datetime
+from datapunt_processing import logger
+
+logger = logger()
 
 createGeom = """
 DROP TABLE IF EXISTS inspections_total; 
@@ -122,6 +128,7 @@ def get_pg_str(host, port, user, dbname, password):
         host, port, user, dbname, password
     )
 
+
 def parser():
     desc = "Run additional SQL."
     parser = argparse.ArgumentParser(desc)
@@ -133,18 +140,43 @@ def parser():
     return parser
 
 
+def export_table_to_csv(pg_str, table_name, output_folder):
+    """
+    Export table to CSV file.
+
+    Args:
+      1. pg_str: psycopg2 connection string, for example:
+         host={} port={} user={} dbname={} password={}
+      2. table_name: for example my_tablename
+      3. output_folder: define output folder, for example: /app/data
+
+    Result:
+      Exported csv file to output_folder/table_name.csv
+    """
+    with psycopg2.connect(pg_str) as conn:
+        with conn.cursor() as cursor:
+            query = sql.SQL("""COPY (SELECT * FROM {}) TO STDOUT WITH CSV HEADER DELIMITER ';'""").format(sql.Identifier(table_name))
+            suffix = '.csv'
+            filename = '{}_{}{}'.format(table_name, datetime.now().date(), suffix)
+            full_path = os.path.join(output_folder, filename)
+            with open(full_path, "w") as file:
+                cursor.copy_expert(query, file)
+                return(full_path)
+
+
 def main():
     config = configparser.RawConfigParser()
     args = parser().parse_args()
     config.read(args.config_path)
-    print('Additional SQL run after import concludes.')
+    logger.info('Additional SQL running...')
     pg_str = get_pg_str(config.get(args.dbconfig,'host'),config.get(args.dbconfig,'port'),config.get(args.dbconfig,'dbname'), config.get(args.dbconfig,'user'), config.get(args.dbconfig,'password'))
     execute_sql(pg_str, createGeom)
-    print('Added geometry fields and renaming columns')
+    logger.info('Added geometry fields and renaming columns')
     execute_sql(pg_str, addAreaCodes)
-    print('Area codes and name fields added')
-   # execute_sql(pg_str, crowscoresView)
-   # print('csv view Created')
+    logger.info('Area codes and name fields added')
+    csv_location = export_table_to_csv(pg_str, 'inspections_total_areas', 'data')
+    logger.info('Exported CSV to: {}'.format(csv_location))
+
 
 if __name__ == '__main__':
     main()

@@ -4,17 +4,19 @@ import requests_cache
 import argparse
 import configparser
 
-import pprint
-
 import pandas as pd
-from pandas.io.json import json_normalize
-from helper_functions import flatten_json, postgres_engine_pandas
+from datapunt_processing.helpers.connections import postgres_engine_pandas
+from datapunt_processing.helpers.json_dict_handlers import flatten_json
+from datapunt_processing import logger
+
+# Setup logging service
+logger = logger()
 
 
 def payload(config_full_path, config_name):
     config = configparser.RawConfigParser()
     config.read(config_full_path)
-    print('Found these configs.. {}'.format(config.sections()))
+    # print('Found these configs.. {}'.format(config.sections()))
     payload = {'key': config.get(config_name, 'key'),
                'secret': config.get(config_name, 'secret')
                }
@@ -31,7 +33,7 @@ def get_json(uri):
 
 def get_objects(endpoint, uri):
     json_array = get_json(endpoint)
-    print(json_array)
+    logger.info(json_array)
     list_uris = [item['uri'] for item in json_array]
     return list_uris
 
@@ -75,34 +77,31 @@ def flatten_rounds(endpoint, key):
                 # pp.pprint(result)
                 total_objects.append(result)
             m += 1
-            print('{} of {} rounds, {} of {} inspections'.format(n, len(list_uris), m, len(inspections)))
+            logger.info('{}: {} of {} rounds, {} of {} inspections'.format(endpoint, n, len(list_uris), m, len(inspections)))
         n += 1
     df = pd.DataFrame.from_dict(total_objects, orient='columns', dtype=None)
     return df
 
 
+def save_table_to_postgres(engine, dataframe, tablename):
+    """Load a flattened dataframe into a table"""
+    dataframe.to_sql(tablename, engine, if_exists='replace', index=True, index_label='idx')
+    logger.info('{} added to postgres.'.format(tablename))
+
+
 def crow_downloader(config_full_path, db_config_name):
-    pp = pprint.PrettyPrinter(indent=4)
     engine = postgres_engine_pandas(config_full_path, db_config_name)
-
-    print('getting types')
+    logger.info('getting types')
     inspection_types_df = flatten_inspectiontypes('/external/inspectietypes', 'uri')
-    print('storing types into postgres')
+    save_table_to_postgres(engine, inspection_types_df,'inspectietypes')
 
-    inspection_types_df.to_sql('inspectietypes', engine, if_exists='replace', index=True, index_label='idx')  # ,dtype={geom: Geometry('POINT', srid='4326')})
-    print('inspectietypes added')
-    print('getting area rounds')
-
+    logger.info('getting area rounds')
     area_rounds_df = flatten_rounds('/external/schouwen/area', 'uri')
-    print('storing area rounds into postgres')
+    save_table_to_postgres(engine, area_rounds_df, 'inspections_area')
 
-    area_rounds_df.to_sql('inspections_area', engine, if_exists='replace', index=True, index_label='idx')  # ,dtype={geom: Geometry('POINT', srid='4326')})
-    print('area rounds added')
-
-    print('storing object rounds into postgres')
+    logger.info('getting object rounds')
     object_rounds_df = flatten_rounds('/external/schouwen/object', 'uri')
-    object_rounds_df.to_sql('inspections_object', engine, if_exists='replace', index=True, index_label='idx')  # ,dtype={geom: Geometry('POINT', srid='4326')})
-    print('object rounds added')
+    save_table_to_postgres(engine, object_rounds_df, 'inspections_object')
 
 
 def parser():
@@ -117,7 +116,6 @@ def parser():
     parser.add_argument(
         'dbconfig', type=str, help='config.ini name of db settings: dev or docker')
     return parser
-
 
 
 def main():

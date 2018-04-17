@@ -10,8 +10,8 @@ python importer/load_areas.py config.ini dev
 # Load areas
 python importer/load_inspections.py config.ini dev
 
-# Add areas and coordinates
+# Add areas and coordinates and save to csv
 python importer/areas_coords_names_sql.py config.ini dev
 
-# Save to csv
-python importer/save_csv_from_postgres.py config.ini dev inspection_total_areas
+# Upload csv to objectstore
+python /app/load_files_to_objectstore.py config.ini objectstore data Dataservices/aanvalsplan_schoon/crow

@@ -15,3 +15,5 @@ services:
       - database
     command: >
         bash -c "/app/docker-run.sh"
+    environment:
+      OBJECTSTORE_PASSWORD:
