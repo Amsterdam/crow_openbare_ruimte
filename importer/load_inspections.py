@@ -85,6 +85,7 @@ def flatten_rounds(endpoint, key):
 
 def save_table_to_postgres(engine, dataframe, tablename):
     """Load a flattened dataframe into a table"""
+    logger.info('Loading {} to postgres.'.format(tablename))
     dataframe.to_sql(tablename, engine, if_exists='replace', index=True, index_label='idx')
     logger.info('{} added to postgres.'.format(tablename))
 
