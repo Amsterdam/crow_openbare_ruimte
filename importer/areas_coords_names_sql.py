@@ -174,7 +174,8 @@ def main():
     logger.info('Added geometry fields and renaming columns')
     execute_sql(pg_str, addAreaCodes)
     logger.info('Area codes and name fields added')
-    csv_location = export_table_to_csv(pg_str, 'inspections_total_areas', 'data')
+    create
+    csv_location = export_table_to_csv(pg_str, 'inspections_total_areas', '/data')
     logger.info('Exported CSV to: {}'.format(csv_location))
 
 
