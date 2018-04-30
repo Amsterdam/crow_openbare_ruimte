@@ -14,6 +14,7 @@ services:
     links:
       - database
     command: >
-        bash -c "/app/docker-run.sh"
+        bash -c "/app/docker-wait.sh \
+                && /app/docker-run.sh"
     environment:
       OBJECTSTORE_PASSWORD:
