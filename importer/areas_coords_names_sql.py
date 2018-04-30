@@ -134,9 +134,10 @@ def parser():
     parser = argparse.ArgumentParser(desc)
     parser.add_argument('config_path', type=str,
                         help='Add full filepath of config.ini file, for example auth/config.ini')
-
     parser.add_argument('dbconfig', type=str,
                         help='dev or docker')
+    parser.add_argument('output_folder', type=str,
+                        help='add output folder location, for example /data')
     return parser
 
 
@@ -174,8 +175,7 @@ def main():
     logger.info('Added geometry fields and renaming columns')
     execute_sql(pg_str, addAreaCodes)
     logger.info('Area codes and name fields added')
-    create
-    csv_location = export_table_to_csv(pg_str, 'inspections_total_areas', '/data')
+    csv_location = export_table_to_csv(pg_str, 'inspections_total_areas', args.output_folder)
     logger.info('Exported CSV to: {}'.format(csv_location))
 
 
