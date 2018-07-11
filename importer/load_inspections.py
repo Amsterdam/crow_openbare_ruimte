@@ -1,8 +1,8 @@
+import os
 import json
 import requests
 import requests_cache
 import argparse
-import configparser
 
 import pandas as pd
 from datapunt_processing.helpers.connections import postgres_engine_pandas
@@ -13,20 +13,14 @@ from datapunt_processing import logger
 logger = logger()
 
 
-def payload(config_full_path, config_name):
-    config = configparser.RawConfigParser()
-    config.read(config_full_path)
-    # print('Found these configs.. {}'.format(config.sections()))
-    payload = {'key': config.get(config_name, 'key'),
-               'secret': config.get(config_name, 'secret')
-               }
-    return payload
-
-
 def get_json(uri):
     url = "https://amsterdam.apptimizeplatform.nl"
+    payload = {
+        'key': os.environ['APPTIMIZE_KEY'],
+        'secret': os.environ['APPTIMIZE_SECRET']
+    }
     get_json = requests.get(url + uri,
-                            params=payload('config.ini', 'apptimize'))
+                            params=payload)
     parsed_json = get_json.json()
     return parsed_json
 

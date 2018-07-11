@@ -18,3 +18,5 @@ services:
                 && /app/docker-run.sh"
     environment:
       OBJECTSTORE_PASSWORD:
+      APPTIMIZE_KEY:
+      APPTIMIZE_SECRET:
