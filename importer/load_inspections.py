@@ -24,7 +24,8 @@ def get_json(uri):
     parsed_json = get_json.json()
     return parsed_json
 
-
+# TODO: Fix this function or its input. Line:  list_uris = [item['uri'] for item in json_array]
+# Now causes: 'error': {'code': 500, 'message': 'Er is iets misgegaan. Probeer het later nog eens.'}
 def get_objects(endpoint, uri):
     json_array = get_json(endpoint)
     logger.info(json_array)
