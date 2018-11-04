@@ -27,7 +27,7 @@ source venv/bin/activate
 Install the packages 
 ```
 cd crow_openbare_ruimte
-pip install -r requirements.txt
+pip install -r importer/requirements.txt
 ```
 
 Before you can use the api you must create a config.ini file
