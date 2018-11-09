@@ -50,7 +50,7 @@ def get_object(connection, container_path, filename, output_folder):
     Returns:
         A file from the objectstore into the specified output_folder.
     """
-    resp_headers, obj_contents = connection.get_object(container, filename)
+    resp_headers, obj_contents = connection.get_object(container_path, filename)
     with open(os.path.join(output_folder, filename), 'w') as local:
         local.write(obj_contents)
 
